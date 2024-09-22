@@ -44,6 +44,7 @@ export const login = async (req, res, next) => {
       .status(200)
       .send(info);
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
