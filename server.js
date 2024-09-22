@@ -26,10 +26,33 @@ const connect = async () => {
   }
 };
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// Configure allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://cb-freelancer.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      // Check if the origin is in the allowed list
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true, // Allow cookies and authentication information
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/gigs", gigRoutes);
@@ -38,14 +61,20 @@ app.use("/api/conversations", conversationRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/reviews", reviewRoutes);
 
+// Root route
+app.get("/", (req, res) => {
+  res.send("Hello");
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
   const errorStatus = err.status || 500;
   const errorMessage = err.message || "Something went wrong!";
-
   return res.status(errorStatus).send(errorMessage);
 });
 
+// Start the server
 app.listen(8800, () => {
   connect();
-  console.log("Server is running");
+  console.log("Server is running on port 8800");
 });
