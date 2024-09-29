@@ -35,6 +35,7 @@ export const login = async (req, res, next) => {
       },
       process.env.JWT_KEY
     );
+    console.log("JWT_KEY:", process.env.JWT_KEY); // Add this before jwt.sign
 
     const { password, ...info } = user._doc;
     res
